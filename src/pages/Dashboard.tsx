@@ -9,6 +9,7 @@ import OrganizationManagement from "./sections/OrganizationManagement";
 import UserManagement from "./sections/UserManagement";
 import SystemAnalytics from "./sections/SystemAnalytics";
 import FeatureFlags from "./sections/FeatureFlags";
+import AiModelConfiguration from "./sections/AiModelConfiguration";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -23,16 +24,16 @@ export default function DashboardPage() {
       try {
         // Fetch user data
         const userData = await AuthService.getCurrentUser();
-        
+
         if (!isMounted) return;
         setUser(userData);
 
         // Check system admin status
         const adminStatus = await AuthService.checkSystemAdminStatus();
-        
+
         if (!isMounted) return;
         setIsSystemAdmin(adminStatus.isSystemAdmin);
-        
+
         // If user is not a system admin, redirect to login
         if (!adminStatus.isSystemAdmin) {
           navigate("/login", { replace: true });
@@ -86,6 +87,7 @@ export default function DashboardPage() {
         <Route path="/users" element={<UserManagement />} />
         <Route path="/analytics" element={<SystemAnalytics />} />
         <Route path="/feature-flags" element={<FeatureFlags />} />
+        <Route path="/ai-models" element={<AiModelConfiguration />} />
       </Routes>
     </DashboardLayout>
   );

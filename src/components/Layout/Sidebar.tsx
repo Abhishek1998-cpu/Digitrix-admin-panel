@@ -22,6 +22,7 @@ import {
   Flag as FlagsIcon,
   ChevronLeft as ChevronLeftIcon,
   Dashboard as DashboardIcon,
+  SmartToy as AiIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -60,6 +61,11 @@ const menuItems: MenuItem[] = [
     text: "Feature Flags",
     icon: <FlagsIcon />,
     path: "/dashboard/feature-flags",
+  },
+  {
+    text: "AI Model Configuration",
+    icon: <AiIcon />,
+    path: "/dashboard/ai-models",
   },
 ];
 
