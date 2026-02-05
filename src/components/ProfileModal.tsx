@@ -6,11 +6,9 @@ import {
   Button,
   Box,
   Typography,
-  Divider,
   Avatar,
   useTheme,
   useMediaQuery,
-  Grid,
   Paper,
   Chip,
 } from "@mui/material";
