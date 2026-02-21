@@ -33,13 +33,17 @@ export default function Shimmer({
   const isText = variant === "text";
   return (
     <Box
-      sx={{
-        ...baseShimmerSx,
-        width: width ?? (isText ? "100%" : 120),
-        height: height ?? (isText ? 20 : 80),
-        borderRadius: isCircular ? "50%" : 1,
-        ...sx,
-      }}
+      sx={
+        [
+          baseShimmerSx,
+          {
+            width: width ?? (isText ? "100%" : 120),
+            height: height ?? (isText ? 20 : 80),
+            borderRadius: isCircular ? "50%" : 1,
+          },
+          sx,
+        ] as SxProps<Theme>
+      }
     />
   );
 }
