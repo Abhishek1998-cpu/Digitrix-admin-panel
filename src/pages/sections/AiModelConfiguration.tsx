@@ -17,7 +17,6 @@ import {
     RadioGroup,
     FormControlLabel,
     FormControl,
-    CircularProgress,
     Alert,
     Dialog,
     DialogTitle,
@@ -34,6 +33,7 @@ import {
     Visibility,
     VisibilityOff,
 } from "@mui/icons-material";
+import { ShimmerBlock } from "@/components/Shimmer/Shimmer";
 import { AiService } from "@/services/ai.service";
 import type { AIModel } from "@/services/ai.service";
 
@@ -315,8 +315,8 @@ export default function AiModelConfiguration() {
 
     if (loading) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}>
-                <CircularProgress />
+            <Box sx={{ p: 3 }}>
+                <ShimmerBlock height={280} />
             </Box>
         );
     }

@@ -21,7 +21,6 @@ import {
   Tooltip,
   Alert,
   Avatar,
-  Skeleton,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -30,6 +29,7 @@ import {
   Delete as DeleteIcon,
   Refresh as RefreshIcon,
 } from "@mui/icons-material";
+import { ShimmerTableRow } from "@/components/Shimmer/Shimmer";
 import { UserService } from "@/services/user.service";
 import type { User, Organization } from "@/services/user.service";
 
@@ -279,41 +279,12 @@ export default function UserManagement() {
             </TableHead>
             <TableBody>
               {loading ? (
-                // Skeleton loading rows
                 Array.from({ length: rowsPerPage }).map((_, index) => (
-                  <TableRow key={`skeleton-${index}`}>
-                    <TableCell>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Skeleton variant="circular" width={40} height={40} />
-                        <Skeleton variant="text" width={150} height={24} />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={200} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={150} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={60} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Stack direction="row" spacing={1}>
-                        <Skeleton variant="rounded" width={60} height={24} />
-                        <Skeleton variant="rounded" width={70} height={24} />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} height={24} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <Skeleton variant="circular" width={32} height={32} />
-                        <Skeleton variant="circular" width={32} height={32} />
-                        <Skeleton variant="circular" width={32} height={32} />
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+                  <ShimmerTableRow
+                    key={`shimmer-${index}`}
+                    columns={[{}, {}, {}, {}, {}, {}, {}]}
+                    rowHeight={24}
+                  />
                 ))
               ) : users.length === 0 ? (
                 <TableRow>

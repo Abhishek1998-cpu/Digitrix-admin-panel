@@ -14,7 +14,6 @@ import {
   TableBody,
   TableContainer,
   Chip,
-  Skeleton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -26,6 +25,7 @@ import {
   Switch,
   Divider,
 } from "@mui/material";
+import { ShimmerTableRow } from "@/components/Shimmer/Shimmer";
 import {
   Refresh as RefreshIcon,
   Edit as EditIcon,
@@ -176,33 +176,11 @@ export default function PricingManagement() {
             <TableBody>
               {loading ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <TableRow key={`pricing-skeleton-${index}`}>
-                    <TableCell>
-                      <Stack spacing={0.5}>
-                        <Skeleton variant="text" width={120} height={22} />
-                        <Skeleton variant="text" width={80} height={16} />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} height={22} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={80} height={22} />
-                    </TableCell>
-                    <TableCell>
-                      <Stack spacing={0.5}>
-                        <Skeleton variant="text" width={120} height={16} />
-                        <Skeleton variant="text" width={120} height={16} />
-                        <Skeleton variant="text" width={120} height={16} />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={70} height={24} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Skeleton variant="circular" width={32} height={32} />
-                    </TableCell>
-                  </TableRow>
+                  <ShimmerTableRow
+                    key={`pricing-shimmer-${index}`}
+                    columns={[{}, {}, {}, {}, {}, {}]}
+                    rowHeight={24}
+                  />
                 ))
               ) : tiers.length === 0 ? (
                 <TableRow>

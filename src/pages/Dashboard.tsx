@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
-import { CircularProgress, Box } from "@mui/material";
+import { Box } from "@mui/material";
+import { ShimmerBlock } from "@/components/Shimmer/Shimmer";
 import { AuthService } from "@/services/auth.service";
 import DashboardLayout from "@/components/Layout/DashboardLayout";
 import DashboardHome from "./DashboardHome";
@@ -10,6 +11,7 @@ import UserManagement from "./sections/UserManagement";
 import SystemAnalytics from "./sections/SystemAnalytics";
 import FeatureFlags from "./sections/FeatureFlags";
 import AiModelConfiguration from "./sections/AiModelConfiguration";
+import IntegrationsManagement from "./sections/IntegrationsManagement";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -67,9 +69,10 @@ export default function DashboardPage() {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
+          p: 3,
         }}
       >
-        <CircularProgress />
+        <ShimmerBlock height={320} />
       </Box>
     );
   }
@@ -88,6 +91,7 @@ export default function DashboardPage() {
         <Route path="/analytics" element={<SystemAnalytics />} />
         <Route path="/feature-flags" element={<FeatureFlags />} />
         <Route path="/ai-models" element={<AiModelConfiguration />} />
+        <Route path="/integrations" element={<IntegrationsManagement />} />
       </Routes>
     </DashboardLayout>
   );

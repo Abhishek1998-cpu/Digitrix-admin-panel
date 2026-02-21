@@ -23,6 +23,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
   Dashboard as DashboardIcon,
   SmartToy as AiIcon,
+  IntegrationInstructions as IntegrationsIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -42,12 +43,12 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
   {
-    text: "Pricing Management",
+    text: "Pricing",
     icon: <PricingIcon />,
     path: "/dashboard/pricing",
   },
   {
-    text: "Organization Management",
+    text: "Org. Management",
     icon: <OrgIcon />,
     path: "/dashboard/organizations",
   },
@@ -66,6 +67,11 @@ const menuItems: MenuItem[] = [
     text: "AI Model Configuration",
     icon: <AiIcon />,
     path: "/dashboard/ai-models",
+  },
+  {
+    text: "Integrations",
+    icon: <IntegrationsIcon />,
+    path: "/dashboard/integrations",
   },
 ];
 

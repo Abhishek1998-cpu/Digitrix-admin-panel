@@ -18,8 +18,8 @@ import {
   Tooltip,
   Alert,
   Avatar,
-  Skeleton,
 } from "@mui/material";
+import { ShimmerTableRow } from "@/components/Shimmer/Shimmer";
 import {
   Search as SearchIcon,
   Visibility as ViewIcon,
@@ -166,41 +166,12 @@ export default function OrganizationManagement() {
             </TableHead>
             <TableBody>
               {loading ? (
-                // Skeleton loading rows
                 Array.from({ length: rowsPerPage }).map((_, index) => (
-                  <TableRow key={`skeleton-${index}`}>
-                    <TableCell>
-                      <Stack direction="row" spacing={2} alignItems="center">
-                        <Skeleton variant="circular" width={40} height={40} />
-                        <Skeleton variant="text" width={180} height={24} />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={120} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Stack spacing={0.5}>
-                        <Skeleton variant="text" width={150} height={20} />
-                        <Skeleton variant="text" width={200} height={16} />
-                      </Stack>
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={90} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="rounded" width={80} height={24} />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton variant="text" width={100} height={24} />
-                    </TableCell>
-                    <TableCell align="right">
-                      <Stack direction="row" spacing={1} justifyContent="flex-end">
-                        <Skeleton variant="circular" width={32} height={32} />
-                        <Skeleton variant="circular" width={32} height={32} />
-                        <Skeleton variant="circular" width={32} height={32} />
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
+                  <ShimmerTableRow
+                    key={`shimmer-${index}`}
+                    columns={[{}, {}, {}, {}, {}, {}, {}]}
+                    rowHeight={24}
+                  />
                 ))
               ) : organizations.length === 0 ? (
                 <TableRow>
