@@ -117,6 +117,8 @@ export default function ProfileModal({ open, onClose, user }: ProfileModalProps)
       PaperProps={{
         sx: {
           borderRadius: isMobile ? 0 : 2,
+          backgroundColor: theme.palette.background.paper,
+          border: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : undefined,
         },
       }}
     >
@@ -163,9 +165,10 @@ export default function ProfileModal({ open, onClose, user }: ProfileModalProps)
           elevation={0}
           sx={{
             p: { xs: 2, sm: 3 },
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: theme.palette.background.paper,
             borderRadius: 2,
             mb: 3,
+            border: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
           }}
         >
           <Typography
@@ -228,9 +231,10 @@ export default function ProfileModal({ open, onClose, user }: ProfileModalProps)
           elevation={0}
           sx={{
             p: { xs: 2, sm: 3 },
-            backgroundColor: theme.palette.grey[50],
+            backgroundColor: theme.palette.background.paper,
             borderRadius: 2,
             mb: 3,
+            border: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
           }}
         >
           <Typography
@@ -307,8 +311,9 @@ export default function ProfileModal({ open, onClose, user }: ProfileModalProps)
               elevation={0}
               sx={{
                 p: { xs: 2, sm: 3 },
-                backgroundColor: theme.palette.grey[50],
+                backgroundColor: theme.palette.background.paper,
                 borderRadius: 2,
+                border: theme.palette.mode === "dark" ? "1px solid rgba(255, 255, 255, 0.1)" : "none",
               }}
             >
               <Typography
@@ -360,12 +365,7 @@ export default function ProfileModal({ open, onClose, user }: ProfileModalProps)
           onClick={onClose}
           variant="contained"
           fullWidth={isMobile}
-          sx={{
-            backgroundColor: "#0f87ff",
-            "&:hover": {
-              backgroundColor: "#0d75e6",
-            },
-          }}
+          color="primary"
         >
           Close
         </Button>

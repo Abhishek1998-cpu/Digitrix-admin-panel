@@ -80,7 +80,7 @@ class ErrorBoundary extends Component<Props, State> {
                 mb: 2,
               }}
             />
-            <Typography variant="h4" gutterBottom sx={{ fontWeight: 700 }}>
+            <Typography variant="h5" gutterBottom sx={{ fontWeight: 600 }}>
               Oops! Something went wrong
             </Typography>
             <Typography variant="body1" color="text.secondary" paragraph>

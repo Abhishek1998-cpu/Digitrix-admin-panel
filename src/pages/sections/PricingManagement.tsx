@@ -140,7 +140,7 @@ export default function PricingManagement() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600 }}>
           Pricing Management
         </Typography>
         <Tooltip title="Refresh">

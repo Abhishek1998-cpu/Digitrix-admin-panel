@@ -6,30 +6,34 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
   Box,
   useTheme,
   useMediaQuery,
   IconButton,
-  Divider,
+  Button,
   styled,
 } from "@mui/material";
 import {
-  AttachMoney as PricingIcon,
-  Business as OrgIcon,
+  AutoGraph as LogoIcon,
+  Dashboard as DashboardIcon,
+  Payments as PricingIcon,
+  CorporateFare as OrgIcon,
   People as UsersIcon,
   BarChart as AnalyticsIcon,
   Flag as FlagsIcon,
-  ChevronLeft as ChevronLeftIcon,
-  Dashboard as DashboardIcon,
-  SmartToy as AiIcon,
+  Psychology as AiIcon,
   IntegrationInstructions as IntegrationsIcon,
+  DarkMode as DarkModeIcon,
+  LightMode as LightModeIcon,
+  ChevronLeft as ChevronLeftIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useColorMode } from "@/theme/ColorModeContext";
 
 interface SidebarProps {
   open: boolean;
   onClose: () => void;
+  onToggle?: () => void;
   drawerWidth: number;
   miniDrawerWidth: number;
 }
@@ -40,19 +44,34 @@ interface MenuItem {
   path: string;
 }
 
+function ThemeToggleButton() {
+  const { mode, toggleColorMode } = useColorMode();
+  return (
+    <Button
+      fullWidth
+      startIcon={mode === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+      onClick={toggleColorMode}
+      sx={{
+        justifyContent: "center",
+        textTransform: "none",
+        color: "text.secondary",
+        "&:hover": { bgcolor: "action.hover" },
+      }}
+    >
+      Toggle Theme
+    </Button>
+  );
+}
+
 const menuItems: MenuItem[] = [
   { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
+  { text: "Pricing", icon: <PricingIcon />, path: "/dashboard/pricing" },
   {
-    text: "Pricing",
-    icon: <PricingIcon />,
-    path: "/dashboard/pricing",
-  },
-  {
-    text: "Org. Management",
+    text: "Organizations",
     icon: <OrgIcon />,
     path: "/dashboard/organizations",
   },
-  { text: "User Management", icon: <UsersIcon />, path: "/dashboard/users" },
+  { text: "Users", icon: <UsersIcon />, path: "/dashboard/users" },
   {
     text: "System Analytics",
     icon: <AnalyticsIcon />,
@@ -79,26 +98,44 @@ const StyledDrawer = styled(Drawer, {
   shouldForwardProp: (prop) =>
     prop !== "open" && prop !== "drawerWidth" && prop !== "miniDrawerWidth",
 })<{ open: boolean; drawerWidth: number; miniDrawerWidth: number }>(
-  ({ theme, open, drawerWidth, miniDrawerWidth }) => ({
-    width: open ? drawerWidth : miniDrawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    "& .MuiDrawer-paper": {
+  ({ theme, open, drawerWidth, miniDrawerWidth }) => {
+    const isDark = theme.palette.mode === "dark";
+    return {
       width: open ? drawerWidth : miniDrawerWidth,
-      transition: theme.transitions.create("width", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      overflowX: "hidden",
+      flexShrink: 0,
+      whiteSpace: "nowrap",
       boxSizing: "border-box",
-    },
-  })
+      "& .MuiDrawer-paper": {
+        width: open ? drawerWidth : miniDrawerWidth,
+        transition: theme.transitions.create("width", {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+        overflowX: "hidden",
+        boxSizing: "border-box",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        ...(isDark
+          ? {
+              background: "rgba(15, 20, 28, 0.7)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.5)",
+            }
+          : {
+              background: "rgba(255, 255, 255, 0.8)",
+              border: "1px solid rgba(255, 255, 255, 0.5)",
+              boxShadow:
+                "0 4px 24px -1px rgba(0, 0, 0, 0.05), 0 2px 12px -1px rgba(0, 0, 0, 0.02)",
+            }),
+      },
+    };
+  }
 );
 
 export default function Sidebar({
   open,
   onClose,
+  onToggle,
   drawerWidth,
   miniDrawerWidth,
 }: SidebarProps) {
@@ -115,23 +152,53 @@ export default function Sidebar({
   };
 
   const drawerContent = (
-    <Box>
-      <Toolbar
+    <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <Box
         sx={{
+          p: 2.5,
           display: "flex",
           alignItems: "center",
-          justifyContent: "flex-end",
-          px: [1],
+          gap: 1.5,
         }}
       >
         {isMobile && (
-          <IconButton onClick={onClose}>
+          <IconButton onClick={onClose} size="small">
             <ChevronLeftIcon />
           </IconButton>
         )}
-      </Toolbar>
-      <Divider />
-      <List>
+        <IconButton
+          onClick={onToggle}
+          disableRipple
+          sx={{
+            p: 0,
+            "&:hover": { bgcolor: "transparent" },
+          }}
+        >
+          <Box
+            sx={{
+              width: 32,
+              height: 32,
+              bgcolor: "primary.main",
+              borderRadius: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+            }}
+          >
+            <LogoIcon sx={{ fontSize: 20 }} />
+          </Box>
+        </IconButton>
+        {open && (
+          <Box
+            component="span"
+            sx={{ fontWeight: 700, fontSize: "1.25rem", color: "text.primary" }}
+          >
+            DulyPlan
+          </Box>
+        )}
+      </Box>
+      <List sx={{ flex: 1, py: 1, px: 1 }}>
         {menuItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
@@ -142,22 +209,37 @@ export default function Sidebar({
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? "initial" : "center",
-                  px: 2.5,
+                  px: 2,
+                  py: 1.5,
+                  borderRadius: 1,
                   "&.Mui-selected": {
-                    backgroundColor: "rgba(15, 135, 255, 0.08)",
-                    borderRight: open ? `3px solid #0f87ff` : "none",
+                    ...(theme.palette.mode === "dark"
+                      ? {
+                          background: "linear-gradient(90deg, rgba(15, 135, 255, 0.2) 0%, rgba(15, 135, 255, 0) 100%)",
+                          borderLeft: "3px solid",
+                          borderLeftColor: "primary.main",
+                          color: "#ffffff",
+                        }
+                      : {
+                          backgroundColor: "rgba(15, 135, 255, 0.1)",
+                          color: "#0f87ff",
+                        }),
                     "&:hover": {
-                      backgroundColor: "rgba(15, 135, 255, 0.12)",
+                      ...(theme.palette.mode === "dark"
+                        ? {
+                            background: "linear-gradient(90deg, rgba(15, 135, 255, 0.25) 0%, rgba(15, 135, 255, 0) 100%)",
+                          }
+                        : { backgroundColor: "rgba(15, 135, 255, 0.15)" }),
                     },
                   },
                   "&:hover": {
-                    backgroundColor: "rgba(15, 135, 255, 0.04)",
+                    backgroundColor: "action.hover",
                   },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    color: isActive ? "#0f87ff" : "inherit",
+                    color: isActive ? "primary.main" : "inherit",
                     minWidth: 0,
                     mr: open ? 1.5 : "auto",
                     justifyContent: "center",
@@ -169,7 +251,7 @@ export default function Sidebar({
                   primary={item.text}
                   primaryTypographyProps={{
                     fontWeight: isActive ? 600 : 400,
-                    color: isActive ? "#0f87ff" : "inherit",
+                    color: isActive ? "primary.main" : "inherit",
                   }}
                   sx={{
                     opacity: open ? 1 : 0,
@@ -181,6 +263,9 @@ export default function Sidebar({
           );
         })}
       </List>
+      <Box sx={{ p: 2, borderTop: 1, borderColor: "divider" }}>
+        <ThemeToggleButton />
+      </Box>
     </Box>
   );
 

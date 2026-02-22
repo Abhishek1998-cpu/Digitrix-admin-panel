@@ -1,34 +1,25 @@
-import { Box, Typography, Paper } from "@mui/material";
+import {
+  BarChart as BarChartIcon,
+  Timeline as TimelineIcon,
+  PieChart as PieChartIcon,
+  Description as DescriptionIcon,
+} from "@mui/icons-material";
+import ComingSoonView, { type ComingSoonBadge } from "@/components/ComingSoonView";
+
+const featureBadges: ComingSoonBadge[] = [
+  { icon: <TimelineIcon />, label: "Real-time Tracking" },
+  { icon: <PieChartIcon />, label: "Data Segmentation" },
+  { icon: <DescriptionIcon />, label: "Auto Reports" },
+];
 
 export default function SystemAnalytics() {
   return (
-    <Box>
-      <Paper
-        elevation={2}
-        sx={{
-          p: { xs: 2, sm: 3, md: 4 },
-          borderRadius: 2,
-        }}
-      >
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            mb: { xs: 2, sm: 3 },
-            fontWeight: 700,
-          }}
-        >
-          System Analytics
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "text.secondary",
-          }}
-        >
-          View system-wide analytics, usage statistics, and performance metrics.
-        </Typography>
-      </Paper>
-    </Box>
+    <ComingSoonView
+      title="System Analytics"
+      description="We're building powerful insights and real-time data visualization to help you manage your platform better. Stay tuned for advanced tracking and performance reports!"
+      heroIcon={<BarChartIcon />}
+      featureBadges={featureBadges}
+      onGetNotified={() => {}}
+    />
   );
 }

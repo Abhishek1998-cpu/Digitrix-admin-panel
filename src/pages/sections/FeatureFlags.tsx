@@ -1,34 +1,25 @@
-import { Box, Typography, Paper } from "@mui/material";
+import {
+  Flag as FlagIcon,
+  Timeline as TimelineIcon,
+  Science as ScienceIcon,
+  PowerSettingsNew as PowerSettingsNewIcon,
+} from "@mui/icons-material";
+import ComingSoonView, { type ComingSoonBadge } from "@/components/ComingSoonView";
+
+const featureBadges: ComingSoonBadge[] = [
+  { icon: <TimelineIcon />, label: "Gradual Rollout" },
+  { icon: <ScienceIcon />, label: "A/B Testing" },
+  { icon: <PowerSettingsNewIcon />, label: "Kill Switch" },
+];
 
 export default function FeatureFlags() {
   return (
-    <Box>
-      <Paper
-        elevation={2}
-        sx={{
-          p: { xs: 2, sm: 3, md: 4 },
-          borderRadius: 2,
-        }}
-      >
-        <Typography
-          variant="h4"
-          component="h1"
-          sx={{
-            mb: { xs: 2, sm: 3 },
-            fontWeight: 700,
-          }}
-        >
-          Feature Flags
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: "text.secondary",
-          }}
-        >
-          Manage feature flags to control the rollout of new features across the platform.
-        </Typography>
-      </Paper>
-    </Box>
+    <ComingSoonView
+      title="Feature Flags"
+      description="We're building a powerful feature flag system to control the rollout of new features across your platform. Stay tuned for gradual releases, A/B testing, and instant kill switches!"
+      heroIcon={<FlagIcon />}
+      featureBadges={featureBadges}
+      onGetNotified={() => {}}
+    />
   );
 }

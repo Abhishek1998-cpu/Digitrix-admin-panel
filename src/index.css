@@ -8,8 +8,45 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-family: "Inter", sans-serif;
 }
 
 #root {
   height: 100%;
+}
+
+/* Light theme – body */
+html[data-theme="light"] body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Dark theme – body (match reference: #0a0c10 + radial gradients) */
+html[data-theme="dark"] body {
+  background-color: #0a0c10;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(15, 135, 255, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(15, 135, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(15, 135, 255, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(15, 135, 255, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+  color: #f8fafc;
+}
+
+/* Glass panel – light */
+.glass-panel {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+html[data-theme="light"] .glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.05), 0 2px 12px -1px rgba(0, 0, 0, 0.02);
+}
+
+/* Glass panel – dark (match reference) */
+html[data-theme="dark"] .glass-panel {
+  background: rgba(15, 20, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }

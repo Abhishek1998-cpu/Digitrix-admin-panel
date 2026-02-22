@@ -159,7 +159,7 @@ export default function UserManagement() {
   return (
     <Box>
       <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+        <Typography variant="h5" sx={{ fontWeight: 600 }}>
           User Management
         </Typography>
         <Tooltip title="Refresh">
