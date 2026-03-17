@@ -78,17 +78,17 @@ export default function LoginPage() {
           setError("Access denied. System administrator access required.");
           await AuthService.logout();
         }
-      } catch (adminError: any) {
+      } catch (adminError: unknown) {
         // If admin check fails, user is not a system admin
         console.error("Admin check error:", adminError);
         setError("Access denied. System administrator access required.");
         await AuthService.logout();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login error:", err);
       setError(
-        err?.response?.data?.message ||
-          err?.message ||
+        (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message ||
+          (err as { message?: string })?.message ||
           "Login failed. Please try again."
       );
     } finally {

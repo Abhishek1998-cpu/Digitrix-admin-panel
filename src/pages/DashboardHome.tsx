@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -6,6 +6,8 @@ import {
   Card,
   useTheme,
   Skeleton,
+  Autocomplete,
+  TextField,
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
@@ -51,6 +53,30 @@ export default function DashboardHome({ isSystemAdmin }: DashboardHomeProps) {
   const [totalOrganizations, setTotalOrganizations] = useState<number | null>(null);
   const [systemHealthPercent, setSystemHealthPercent] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [demoTimezone, setDemoTimezone] = useState<string>("Asia/Kolkata");
+
+  type TimezoneOption = {
+    label: string;
+    value: string;
+  };
+
+  const TIMEZONES: TimezoneOption[] = useMemo(() => {
+    const timeZones = Intl.supportedValuesOf("timeZone");
+    return timeZones.map((tz) => {
+      const offset =
+        new Intl.DateTimeFormat("en-US", {
+          timeZone: tz,
+          timeZoneName: "shortOffset",
+        })
+          .formatToParts(new Date())
+          .find((p) => p.type === "timeZoneName")?.value || "";
+
+      return {
+        label: `(GMT ${offset.slice(3)}) ${tz}`,
+        value: tz,
+      };
+    });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,6 +180,48 @@ export default function DashboardHome({ isSystemAdmin }: DashboardHomeProps) {
           </Box>
         </Card>
       </Box>
+
+      {/* Demo: simple MUI timezone select (dummy data) */}
+      {/* <Card
+        variant="outlined"
+        sx={{
+          ...glassPanelSx,
+          p: 2,
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+          Demo – Timezone (MUI Autocomplete)
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          This is a Material UI timezone dropdown with search & filter,
+          using the same style of options as the schedule modal.
+        </Typography>
+        <Autocomplete<TimezoneOption, false, false, false>
+          size="small"
+          sx={{ minWidth: 280 }}
+          options={TIMEZONES}
+          getOptionLabel={(option) =>
+            typeof option === "string"
+              ? option
+              : option.label || option.value || ""
+          }
+          value={
+            TIMEZONES.find((tz) => tz.value === demoTimezone) || null
+          }
+          onChange={(_, newValue) => {
+            setDemoTimezone(newValue ? newValue.value : demoTimezone);
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Timezone"
+              placeholder="Search timezone..."
+            />
+          )}
+          isOptionEqualToValue={(option, value) => option.value === value.value}
+        />
+      </Card> */}
 
       {/* Metric cards */}
       <Box

@@ -1,7 +1,7 @@
 import { api } from '@/common/api-config';
 
 export class ApiService {
-  static async get<T>(url: string, params?: any): Promise<T> {
+  static async get<T>(url: string, params?: object): Promise<T> {
     try {
       const config =
         params && typeof params === "object" && Object.prototype.hasOwnProperty.call(params, "params")
@@ -17,7 +17,7 @@ export class ApiService {
     }
   }
 
-  static async post<T>(url: string, data?: any, params?: any): Promise<T> {
+  static async post<T>(url: string, data?: unknown, params?: object): Promise<T> {
     try {
       const response = await api.post<T>(url, data, { params });
       return response.data;
@@ -27,7 +27,7 @@ export class ApiService {
     }
   }
 
-  static async put<T>(url: string, data?: any, params?: any): Promise<T> {
+  static async put<T>(url: string, data?: unknown, params?: object): Promise<T> {
     try {
       const response = await api.put<T>(url, data, { params });
       return response.data;
@@ -37,7 +37,7 @@ export class ApiService {
     }
   }
 
-  static async patch<T>(url: string, data?: any, params?: any): Promise<T> {
+  static async patch<T>(url: string, data?: unknown, params?: object): Promise<T> {
     try {
       const response = await api.patch<T>(url, data, { params });
       return response.data;
@@ -47,7 +47,7 @@ export class ApiService {
     }
   }
 
-  static async delete<T>(url: string, data?: any, params?: any): Promise<T> {
+  static async delete<T>(url: string, data?: unknown, params?: object): Promise<T> {
     try {
       const response = await api.delete<T>(url, data, { params });
       return response.data;

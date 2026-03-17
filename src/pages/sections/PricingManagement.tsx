@@ -74,9 +74,9 @@ export default function PricingManagement() {
       setError(null);
       const response = await PricingService.getPricingTiers();
       setTiers(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching pricing tiers:", err);
-      setError(err.response?.data?.message || "Failed to fetch pricing tiers");
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch pricing tiers");
     } finally {
       setLoading(false);
     }
@@ -129,9 +129,9 @@ export default function PricingManagement() {
       });
       await fetchPricing();
       handleCloseEdit();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating pricing tier:", err);
-      setError(err.response?.data?.message || "Failed to update pricing tier");
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update pricing tier");
     } finally {
       setSaving(false);
     }

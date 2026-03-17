@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Paper,
@@ -50,28 +50,16 @@ export default function UserManagement() {
   const [selectedTier, setSelectedTier] = useState("");
   const [selectedAdminFilter, setSelectedAdminFilter] = useState("");
 
-  // Fetch organizations on mount
-  useEffect(() => {
-    fetchOrganizations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Fetch users when filters or pagination changes
-  useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, rowsPerPage, searchQuery, selectedOrgId, selectedTier, selectedAdminFilter]);
-
-  const fetchOrganizations = async () => {
+  const fetchOrganizations = useCallback(async () => {
     try {
       const response = await UserService.getAllOrganizations();
       setOrganizations(response.data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching organizations:", err);
     }
-  };
+  }, []);
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -87,13 +75,21 @@ export default function UserManagement() {
 
       setUsers(response.data);
       setTotalUsers(response.pagination.totalUsers);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching users:", err);
-      setError(err.response?.data?.message || "Failed to fetch users");
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch users");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, rowsPerPage, searchQuery, selectedOrgId, selectedTier, selectedAdminFilter]);
+
+  useEffect(() => {
+    fetchOrganizations();
+  }, [fetchOrganizations]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);

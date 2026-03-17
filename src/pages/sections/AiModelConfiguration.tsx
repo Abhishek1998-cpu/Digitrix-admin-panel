@@ -66,39 +66,39 @@ export default function AiModelConfiguration() {
         const fetchModels = async () => {
             try {
                 setLoading(true);
-                const response = await AiService.getAiModels() as any;
+                const response = await AiService.getAiModels();
                 console.log("AI Models API Response (Raw):", response);
 
-                let dataToProcess: any[] = [];
+                let dataToProcess: AIModel[] = [];
 
                 // DATA EXTRACTION HEURISTICS
                 if (Array.isArray(response)) {
                     // Case 1: Root is array [...]
                     console.log("Detected array at root");
                     dataToProcess = response;
-                } else if (response && Array.isArray(response.data)) {
+                } else if (response && Array.isArray((response as { data?: AIModel[] }).data)) {
                     // Case 2: { data: [...] } (Standard envelope)
                     console.log("Detected array at response.data");
-                    dataToProcess = response.data;
-                } else if (response && response.data && Array.isArray(response.data.data)) {
+                    dataToProcess = (response as { data: AIModel[] }).data;
+                } else if (response && typeof response === "object" && "data" in response && response.data && typeof response.data === "object" && "data" in response.data && Array.isArray((response as unknown as { data: { data: AIModel[] } }).data.data)) {
                     // Case 3: { data: { data: [...] } } (Double envelope)
                     console.log("Detected array at response.data.data");
-                    dataToProcess = response.data.data;
-                } else if (response && response.models && Array.isArray(response.models)) {
+                    dataToProcess = (response as unknown as { data: { data: AIModel[] } }).data.data;
+                } else if (response && typeof response === "object" && "models" in response && Array.isArray((response as unknown as { models: AIModel[] }).models)) {
                     // Case 4: { models: [...] }
                     console.log("Detected array at response.models");
-                    dataToProcess = response.models;
-                } else if (response && typeof response === 'object' && (response._id || response.model)) {
+                    dataToProcess = (response as unknown as { models: AIModel[] }).models;
+                } else if (response && typeof response === "object" && (("_id" in response) || ("model" in response))) {
                     // Case 5: Single object returned instead of array
                     console.log("Detected single object at root");
-                    dataToProcess = [response];
+                    dataToProcess = [response as unknown as AIModel];
                 }
 
                 console.log("Processed Data Count:", dataToProcess.length);
                 console.log("Processed Data Sample:", dataToProcess[0]);
 
                 if (dataToProcess.length > 0) {
-                    setModels(dataToProcess.map((item: any) => {
+                    setModels(dataToProcess.map((item: AIModel) => {
                         // Derive provider from model name
                         let derivedProvider = "Unknown";
                         const modelLower = (item.model || item.name || "").toLowerCase();
@@ -252,10 +252,10 @@ export default function AiModelConfiguration() {
 
             // Optimistically add to list (re-fetch would be safer but this gives instant feedback)
             // If response contains data we use it
-            const createdModelData = response.data || response || {};
+            const createdModelData = (response?.data ?? response ?? {}) as { _id?: string };
 
             const newModelEntry: AIModel = {
-                _id: createdModelData._id || `temp-${Date.now()}`,
+                _id: createdModelData._id ?? `temp-${Date.now()}`,
                 model: newModel.model,
                 provider: newModel.provider,
                 isActive: newModel.isActive,

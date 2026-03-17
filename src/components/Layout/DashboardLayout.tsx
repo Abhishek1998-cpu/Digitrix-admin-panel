@@ -20,10 +20,11 @@ import { useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ProfileModal from "@/components/ProfileModal";
 import { AuthService } from "@/services/auth.service";
+import type { CurrentUser } from "@/services/auth.service";
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  user: any;
+  user: CurrentUser | null;
 }
 
 const drawerWidth = 288;

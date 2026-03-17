@@ -53,22 +53,22 @@ export const api = {
       headers: getHeaders(opt.headers),
       params: opt.params,
     }),
-  post: <T>(url: string, data: any, opt = defaultOptional) =>
+  post: <T>(url: string, data: unknown, opt = defaultOptional) =>
     axiosConfig.post<T>(url, data, {
       headers: getHeaders(opt.headers),
       params: opt.params,
     }),
-  patch: <T>(url: string, data: any, opt = defaultOptional) =>
+  patch: <T>(url: string, data: unknown, opt = defaultOptional) =>
     axiosConfig.patch<T>(url, data, {
       headers: getHeaders(opt.headers),
       params: opt.params,
     }),
-  put: <T>(url: string, data: any, opt = defaultOptional) =>
+  put: <T>(url: string, data: unknown, opt = defaultOptional) =>
     axiosConfig.put<T>(url, data, {
       headers: getHeaders(opt.headers),
       params: opt.params,
     }),
-  delete: <T>(url: string, data: any, opt = defaultOptional) =>
+  delete: <T>(url: string, data?: unknown, opt = defaultOptional) =>
     axiosConfig.delete<T>(url, {
       headers: getHeaders(opt.headers),
       params: opt.params,

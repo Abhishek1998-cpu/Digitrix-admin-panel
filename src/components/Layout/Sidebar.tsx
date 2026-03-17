@@ -28,7 +28,7 @@ import {
   ChevronLeft as ChevronLeftIcon,
 } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useColorMode } from "@/theme/ColorModeContext";
+import { useColorMode } from "@/theme/colorMode";
 
 interface SidebarProps {
   open: boolean;

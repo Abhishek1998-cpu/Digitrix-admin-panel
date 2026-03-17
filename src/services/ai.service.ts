@@ -29,21 +29,21 @@ export const AiService = {
     /**
      * Update an AI configuration (used for setting active status or editing)
      */
-    updateAiConfig: (data: Partial<AIModel>): Promise<any> => {
+    updateAiConfig: (data: Partial<AIModel>): Promise<{ success?: boolean; data?: AIModel }> => {
         return ApiService.put("/v1/admin/ai-config", data);
     },
 
     /**
      * Create a new AI configuration
      */
-    createAiConfig: (data: Partial<AIModel>): Promise<any> => {
+    createAiConfig: (data: Partial<AIModel>): Promise<{ success?: boolean; data?: AIModel }> => {
         return ApiService.post("/v1/admin/ai-config", data);
     },
 
     /**
      * Delete an AI configuration
      */
-    deleteAiConfig: (id: string): Promise<any> => {
+    deleteAiConfig: (id: string): Promise<{ success?: boolean }> => {
         return ApiService.delete(`/v1/admin/ai-config/${id}`);
     },
 };

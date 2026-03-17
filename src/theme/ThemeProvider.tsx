@@ -1,7 +1,8 @@
 import { ThemeProvider as MUIThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import type { ReactNode } from "react";
-import { ColorModeProvider, useColorMode } from "./ColorModeContext";
+import { ColorModeProvider } from "./ColorModeProvider";
+import { useColorMode } from "./colorMode";
 
 const sharedOptions = {
   typography: {

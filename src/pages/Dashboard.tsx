@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { Box } from "@mui/material";
 import { ShimmerBlock } from "@/components/Shimmer/Shimmer";
-import { AuthService } from "@/services/auth.service";
+import { AuthService, type CurrentUser } from "@/services/auth.service";
 import DashboardLayout from "@/components/Layout/DashboardLayout";
 import DashboardHome from "./DashboardHome";
 import PricingManagement from "./sections/PricingManagement";
@@ -16,7 +16,7 @@ import IntegrationsManagement from "./sections/IntegrationsManagement";
 export default function DashboardPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<CurrentUser | null>(null);
   const [isSystemAdmin, setIsSystemAdmin] = useState<boolean>(false);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function DashboardPage() {
         if (!adminStatus.isSystemAdmin) {
           navigate("/login", { replace: true });
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If any authentication check fails, redirect to login
         console.error("Authentication check failed:", error);
         if (isMounted) {

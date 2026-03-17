@@ -19,47 +19,25 @@ import {
   CheckCircle as CheckCircleIcon,
 } from "@mui/icons-material";
 import type { ReactNode } from "react";
+import type { CurrentUser } from "@/services/auth.service";
 
 interface ProfileModalProps {
   open: boolean;
   onClose: () => void;
-  user: any;
+  user: CurrentUser | null;
 }
 
-export default function ProfileModal({ open, onClose, user }: ProfileModalProps) {
+function InfoRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: ReactNode;
+  label: string;
+  value: string | null | undefined;
+}) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  if (!user || !user.userinfo) {
-    return null;
-  }
-
-  const userInfo = user.userinfo;
-  const createdAt = userInfo.createdAt
-    ? new Date(userInfo.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "N/A";
-
-  const updatedAt = userInfo.updatedAt
-    ? new Date(userInfo.updatedAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : "N/A";
-
-  const InfoRow = ({
-    icon,
-    label,
-    value,
-  }: {
-    icon: ReactNode;
-    label: string;
-    value: string | null | undefined;
-  }) => (
+  return (
     <Box
       sx={{
         display: "flex",
@@ -106,6 +84,32 @@ export default function ProfileModal({ open, onClose, user }: ProfileModalProps)
       </Box>
     </Box>
   );
+}
+
+export default function ProfileModal({ open, onClose, user }: ProfileModalProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  if (!user || !user.userinfo) {
+    return null;
+  }
+
+  const userInfo = user.userinfo;
+  const createdAt = userInfo.createdAt
+    ? new Date(userInfo.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "N/A";
+
+  const updatedAt = userInfo.updatedAt
+    ? new Date(userInfo.updatedAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "N/A";
 
   return (
     <Dialog

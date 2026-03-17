@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Paper,
@@ -40,22 +40,22 @@ function DeveloperAppsTab() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await IntegrationsService.getIntegrations();
       setIntegrations(res.integrations || []);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to fetch integrations");
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to fetch integrations");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetch();
-  }, []);
+  }, [fetch]);
 
   if (loading) {
     return <ShimmerBlock height={280} />;
@@ -156,7 +156,7 @@ function TokenHealthTab() {
   const [platformFilter, setPlatformFilter] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("");
 
-  const fetch = async () => {
+  const fetch = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -166,16 +166,16 @@ function TokenHealthTab() {
       if (statusFilter === "expiring_soon") params.expiringWithin = 7;
       const res = await IntegrationsService.getChannels(params);
       setChannels(res.channels || []);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to fetch channels");
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { error?: string } } })?.response?.data?.error || "Failed to fetch channels");
     } finally {
       setLoading(false);
     }
-  };
+  }, [platformFilter, statusFilter]);
 
   useEffect(() => {
     fetch();
-  }, [platformFilter, statusFilter]);
+  }, [fetch]);
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "—";

@@ -63,9 +63,9 @@ export default function OrganizationManagement() {
 
       setOrganizations(response.data);
       setTotalOrgs(response.pagination.totalOrgs);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching organizations:", err);
-      setError(err.response?.data?.message || "Failed to fetch organizations");
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch organizations");
     } finally {
       setLoading(false);
     }
