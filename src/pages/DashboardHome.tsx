@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -6,8 +6,6 @@ import {
   Card,
   useTheme,
   Skeleton,
-  Autocomplete,
-  TextField,
 } from "@mui/material";
 import {
   CheckCircle as CheckCircleIcon,
@@ -53,30 +51,29 @@ export default function DashboardHome({ isSystemAdmin }: DashboardHomeProps) {
   const [totalOrganizations, setTotalOrganizations] = useState<number | null>(null);
   const [systemHealthPercent, setSystemHealthPercent] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [demoTimezone, setDemoTimezone] = useState<string>("Asia/Kolkata");
-
-  type TimezoneOption = {
-    label: string;
-    value: string;
-  };
-
-  const TIMEZONES: TimezoneOption[] = useMemo(() => {
-    const timeZones = Intl.supportedValuesOf("timeZone");
-    return timeZones.map((tz) => {
-      const offset =
-        new Intl.DateTimeFormat("en-US", {
-          timeZone: tz,
-          timeZoneName: "shortOffset",
-        })
-          .formatToParts(new Date())
-          .find((p) => p.type === "timeZoneName")?.value || "";
-
-      return {
-        label: `(GMT ${offset.slice(3)}) ${tz}`,
-        value: tz,
-      };
-    });
-  }, []);
+  // Demo timezone Autocomplete (kept for future use)
+  // const [demoTimezone, setDemoTimezone] = useState<string>("Asia/Kolkata");
+  // type TimezoneOption = {
+  //   label: string;
+  //   value: string;
+  // };
+  // const TIMEZONES: TimezoneOption[] = useMemo(() => {
+  //   const timeZones = Intl.supportedValuesOf("timeZone");
+  //   return timeZones.map((tz) => {
+  //     const offset =
+  //       new Intl.DateTimeFormat("en-US", {
+  //         timeZone: tz,
+  //         timeZoneName: "shortOffset",
+  //       })
+  //         .formatToParts(new Date())
+  //         .find((p) => p.type === "timeZoneName")?.value || "";
+  //
+  //     return {
+  //       label: `(GMT ${offset.slice(3)}) ${tz}`,
+  //       value: tz,
+  //     };
+  //   });
+  // }, []);
 
   useEffect(() => {
     let cancelled = false;
