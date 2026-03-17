@@ -21,8 +21,6 @@ import {
   Button,
   TextField,
   Grid,
-  FormControlLabel,
-  Switch,
   Divider,
 } from "@mui/material";
 import { ShimmerTableRow } from "@/components/Shimmer/Shimmer";
@@ -38,27 +36,13 @@ export default function PricingManagement() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-
-  const [formState, setFormState] = useState({
-    name: "",
-    monthly: 0,
-    yearly: 0,
-    channels: 0,
-    postsPerMonth: 0,
-    teamMembers: 0,
-    stripeMonthly: "",
-    stripeYearly: "",
-    isActive: true,
-    features: {
-      basicScheduling: true,
-      basicAnalytics: false,
-      advancedAnalytics: false,
-      prioritySupport: false,
-      customBranding: false,
-    },
-  });
-
+  const [limitsDraft, setLimitsDraft] = useState<{
+    channels: number;
+    postsPerMonth: number;
+    teamMembers: number;
+  } | null>(null);
   const currency = useMemo(
     () => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }),
     []
@@ -84,54 +68,32 @@ export default function PricingManagement() {
 
   const handleOpenEdit = (tier: PricingTier) => {
     setSelectedTier(tier);
-    setFormState({
-      name: tier.name,
-      monthly: tier.price.monthly,
-      yearly: tier.price.yearly,
-      channels: tier.limits.channels,
-      postsPerMonth: tier.limits.postsPerMonth,
-      teamMembers: tier.limits.teamMembers,
-      stripeMonthly: tier.stripePriceId.monthly || "",
-      stripeYearly: tier.stripePriceId.yearly || "",
-      isActive: tier.isActive,
-      features: {
-        basicScheduling: tier.features.basicScheduling,
-        basicAnalytics: tier.features.basicAnalytics,
-        advancedAnalytics: tier.features.advancedAnalytics,
-        prioritySupport: tier.features.prioritySupport,
-        customBranding: tier.features.customBranding,
-      },
-    });
+    setLimitsDraft({ ...tier.limits });
+    setEditOpen(true);
   };
 
   const handleCloseEdit = () => {
+    setEditOpen(false);
     setSelectedTier(null);
+    setLimitsDraft(null);
   };
 
   const handleSave = async () => {
-    if (!selectedTier) return;
+    if (!selectedTier || !limitsDraft) return;
     try {
       setSaving(true);
+      setError(null);
       await PricingService.updatePricingTier(selectedTier.tierKey, {
-        name: formState.name,
-        price: { monthly: formState.monthly, yearly: formState.yearly },
-        limits: {
-          channels: formState.channels,
-          postsPerMonth: formState.postsPerMonth,
-          teamMembers: formState.teamMembers,
-        },
-        stripePriceId: {
-          monthly: formState.stripeMonthly || null,
-          yearly: formState.stripeYearly || null,
-        },
-        isActive: formState.isActive,
-        features: formState.features,
+        limits: limitsDraft,
       });
       await fetchPricing();
       handleCloseEdit();
     } catch (err: unknown) {
       console.error("Error updating pricing tier:", err);
-      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update pricing tier");
+      setError(
+        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
+          "Failed to update pricing tier"
+      );
     } finally {
       setSaving(false);
     }
@@ -226,10 +188,16 @@ export default function PricingManagement() {
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Tooltip title="Edit pricing">
-                        <IconButton size="small" color="primary" onClick={() => handleOpenEdit(tier)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
+                      <Tooltip title="Edit limits">
+                        <span>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleOpenEdit(tier)}
+                            disabled={loading}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </span>
                       </Tooltip>
                     </TableCell>
                   </TableRow>
@@ -240,148 +208,75 @@ export default function PricingManagement() {
         </TableContainer>
       </Paper>
 
-      <Dialog open={!!selectedTier} onClose={handleCloseEdit} maxWidth="md" fullWidth>
-        <DialogTitle>Edit Pricing Tier</DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={3}>
-            <TextField
-              label="Tier Name"
-              fullWidth
-              value={formState.name}
-              onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-            />
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Monthly Price"
-                  type="number"
-                  fullWidth
-                  value={formState.monthly}
-                  onChange={(e) => setFormState({ ...formState, monthly: Number(e.target.value) })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Yearly Price"
-                  type="number"
-                  fullWidth
-                  value={formState.yearly}
-                  onChange={(e) => setFormState({ ...formState, yearly: Number(e.target.value) })}
-                />
-              </Grid>
-            </Grid>
-
-            <Divider />
-
-            <Typography variant="subtitle1" fontWeight={600}>
-              Limits
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Channels"
-                  type="number"
-                  fullWidth
-                  value={formState.channels}
-                  onChange={(e) =>
-                    setFormState({ ...formState, channels: Number(e.target.value) })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Posts / Month"
-                  type="number"
-                  fullWidth
-                  value={formState.postsPerMonth}
-                  onChange={(e) =>
-                    setFormState({ ...formState, postsPerMonth: Number(e.target.value) })
-                  }
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Team Members"
-                  type="number"
-                  fullWidth
-                  value={formState.teamMembers}
-                  onChange={(e) =>
-                    setFormState({ ...formState, teamMembers: Number(e.target.value) })
-                  }
-                />
-              </Grid>
-            </Grid>
-
-            <Divider />
-
-            <Typography variant="subtitle1" fontWeight={600}>
-              Stripe Price IDs
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Monthly Price ID"
-                  fullWidth
-                  value={formState.stripeMonthly}
-                  onChange={(e) => setFormState({ ...formState, stripeMonthly: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Yearly Price ID"
-                  fullWidth
-                  value={formState.stripeYearly}
-                  onChange={(e) => setFormState({ ...formState, stripeYearly: e.target.value })}
-                />
-              </Grid>
-            </Grid>
-
-            <Divider />
-
-            <Typography variant="subtitle1" fontWeight={600}>
-              Features
-            </Typography>
-            <Grid container spacing={2}>
-              {Object.entries(formState.features).map(([key, value]) => (
-                <Grid item xs={12} sm={6} key={key}>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={value}
-                        onChange={(e) =>
-                          setFormState({
-                            ...formState,
-                            features: { ...formState.features, [key]: e.target.checked },
-                          })
-                        }
-                      />
+      <Dialog open={editOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
+        <DialogTitle>Edit Tier Limits</DialogTitle>
+        <DialogContent>
+          {selectedTier && limitsDraft && (
+            <Box mt={1}>
+              <Typography variant="subtitle2" gutterBottom>
+                {selectedTier.name} ({selectedTier.tierKey})
+              </Typography>
+              <Grid container spacing={2} mt={1}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Channels"
+                    type="number"
+                    fullWidth
+                    value={limitsDraft.channels}
+                    onChange={(e) =>
+                      setLimitsDraft({
+                        ...limitsDraft,
+                        channels: Number(e.target.value) || 0,
+                      })
                     }
-                    label={key.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase())}
                   />
                 </Grid>
-              ))}
-            </Grid>
-
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={formState.isActive}
-                  onChange={(e) => setFormState({ ...formState, isActive: e.target.checked })}
-                />
-              }
-              label="Active"
-            />
-          </Stack>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Posts / month"
+                    type="number"
+                    fullWidth
+                    value={limitsDraft.postsPerMonth}
+                    onChange={(e) =>
+                      setLimitsDraft({
+                        ...limitsDraft,
+                        postsPerMonth: Number(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Team members"
+                    type="number"
+                    fullWidth
+                    value={limitsDraft.teamMembers}
+                    onChange={(e) =>
+                      setLimitsDraft({
+                        ...limitsDraft,
+                        teamMembers: Number(e.target.value) || 0,
+                      })
+                    }
+                  />
+                </Grid>
+              </Grid>
+              <Divider sx={{ mt: 2, mb: 1 }} />
+              <Typography variant="caption" color="text.secondary">
+                Prices are managed in Stripe. Here you can only change plan limits.
+              </Typography>
+            </Box>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEdit} disabled={saving}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={handleSave} disabled={saving}>
-            {saving ? "Saving..." : "Save Changes"}
+          <Button onClick={handleSave} variant="contained" disabled={saving}>
+            {saving ? "Saving..." : "Save"}
           </Button>
         </DialogActions>
       </Dialog>
+
     </Box>
   );
 }
