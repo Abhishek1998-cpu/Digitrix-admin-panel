@@ -171,10 +171,18 @@ src/
 ## API Configuration
 
 The admin panel uses the same API configuration as the main frontend:
-- Production: `https://api.dulyplan.com`
+- Production: `https://dulyplan.com`
+- UAT: `https://api.dulyplan.com`
 - Development: `http://local.dulyplan.com:8085`
 
-API calls are configured in `src/common/api-config.ts` and use the same authentication mechanism (JWT cookies).
+API calls are configured in `src/common/api-config.ts` and `src/common/env.ts`
+and use the same authentication mechanism (JWT cookies).
+
+Use `VITE_API_ROOT` to override the backend at build time when needed:
+
+```bash
+VITE_API_ROOT=https://dulyplan.com npm run build
+```
 
 ## Authentication & Access
 
