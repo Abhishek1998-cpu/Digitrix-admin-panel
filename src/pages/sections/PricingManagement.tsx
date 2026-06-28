@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
   Typography,
@@ -31,10 +31,15 @@ import {
 import { PricingService } from "@/services/pricing.service";
 import type { PricingTier } from "@/services/pricing.service";
 
+const getErrorMessage = (err: unknown, fallback: string) =>
+  (err as { response?: { data?: { message?: string } } })?.response?.data
+    ?.message || fallback;
+
 export default function PricingManagement() {
   const [tiers, setTiers] = useState<PricingTier[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -47,24 +52,33 @@ export default function PricingManagement() {
     () => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }),
     []
   );
-
-  useEffect(() => {
-    fetchPricing();
-  }, []);
-
-  const fetchPricing = async () => {
+  const fetchPricing = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await PricingService.getPricingTiers();
-      setTiers(response.data);
+      const response = await PricingService.getPricingTiers({
+        syncFromStripe: true,
+      });
+      const syncedTiers = response.data || [];
+      setTiers(syncedTiers);
+      setLastSyncedAt(
+        syncedTiers
+          .map((tier) => tier.syncedAt)
+          .filter(Boolean)
+          .sort()
+          .at(-1) || new Date().toISOString()
+      );
     } catch (err: unknown) {
-      console.error("Error fetching pricing tiers:", err);
-      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch pricing tiers");
+      console.error("Error syncing pricing tiers from Stripe:", err);
+      setError(getErrorMessage(err, "Failed to sync pricing tiers from Stripe"));
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    void fetchPricing();
+  }, [fetchPricing]);
 
   const handleOpenEdit = (tier: PricingTier) => {
     setSelectedTier(tier);
@@ -91,8 +105,7 @@ export default function PricingManagement() {
     } catch (err: unknown) {
       console.error("Error updating pricing tier:", err);
       setError(
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ||
-          "Failed to update pricing tier"
+        getErrorMessage(err, "Failed to update pricing tier")
       );
     } finally {
       setSaving(false);
@@ -105,16 +118,28 @@ export default function PricingManagement() {
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
           Pricing Management
         </Typography>
-        <Tooltip title="Refresh">
-          <IconButton onClick={fetchPricing} color="primary">
-            <RefreshIcon />
-          </IconButton>
+        <Tooltip title="Sync latest prices from Stripe">
+          <span>
+            <IconButton onClick={fetchPricing} color="primary" disabled={loading}>
+              <RefreshIcon />
+            </IconButton>
+          </span>
         </Tooltip>
       </Stack>
 
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Manage subscription plans, pricing tiers, and billing settings.
+        Pricing tiers are synced from Stripe, then displayed from backend pricing records.
       </Typography>
+
+      <Alert severity="warning" sx={{ mb: 3 }}>
+        Prices can be updated only from the Stripe admin panel.
+      </Alert>
+
+      {lastSyncedAt && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          Last synced from Stripe: {new Date(lastSyncedAt).toLocaleString()}
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
@@ -131,6 +156,7 @@ export default function PricingManagement() {
                 <TableCell>Monthly</TableCell>
                 <TableCell>Yearly</TableCell>
                 <TableCell>Limits</TableCell>
+                <TableCell>Stripe Sync</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -140,13 +166,13 @@ export default function PricingManagement() {
                 Array.from({ length: 4 }).map((_, index) => (
                   <ShimmerTableRow
                     key={`pricing-shimmer-${index}`}
-                    columns={[{}, {}, {}, {}, {}, {}]}
+                    columns={[{}, {}, {}, {}, {}, {}, {}]}
                     rowHeight={24}
                   />
                 ))
               ) : tiers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={7} align="center">
                     <Typography variant="body2" color="text.secondary" py={4}>
                       No pricing tiers found
                     </Typography>
@@ -178,6 +204,21 @@ export default function PricingManagement() {
                         <Typography variant="caption" color="text.secondary">
                           Team: {tier.limits.teamMembers}
                         </Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>
+                      <Stack spacing={0.5}>
+                        <Chip
+                          label={tier.syncSource === "stripe" ? "Stripe" : tier.syncSource || "Unknown"}
+                          color={tier.syncSource === "stripe" ? "info" : "default"}
+                          size="small"
+                          variant="outlined"
+                        />
+                        {tier.syncedAt && (
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(tier.syncedAt).toLocaleString()}
+                          </Typography>
+                        )}
                       </Stack>
                     </TableCell>
                     <TableCell>
@@ -262,7 +303,7 @@ export default function PricingManagement() {
               </Grid>
               <Divider sx={{ mt: 2, mb: 1 }} />
               <Typography variant="caption" color="text.secondary">
-                Prices are managed in Stripe. Here you can only change plan limits.
+                Prices can be updated only from the Stripe admin panel. This dialog only changes plan limits.
               </Typography>
             </Box>
           )}
