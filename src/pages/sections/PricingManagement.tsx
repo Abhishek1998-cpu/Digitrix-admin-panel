@@ -22,6 +22,8 @@ import {
   TextField,
   Grid,
   Divider,
+  FormControlLabel,
+  Switch,
 } from "@mui/material";
 import { ShimmerTableRow } from "@/components/Shimmer/Shimmer";
 import {
@@ -39,7 +41,7 @@ export default function PricingManagement() {
   const [tiers, setTiers] = useState<PricingTier[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [planDraft, setPlanDraft] = useState<{ monthly: string; yearly: string; isActive: boolean; monthlyAmount: number; yearlyAmount: number } | null>(null);
   const [selectedTier, setSelectedTier] = useState<PricingTier | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -56,21 +58,12 @@ export default function PricingManagement() {
     try {
       setLoading(true);
       setError(null);
-      const response = await PricingService.getPricingTiers({
-        syncFromStripe: true,
-      });
+      const response = await PricingService.getPricingTiers();
       const syncedTiers = response.data || [];
       setTiers(syncedTiers);
-      setLastSyncedAt(
-        syncedTiers
-          .map((tier) => tier.syncedAt)
-          .filter(Boolean)
-          .sort()
-          .at(-1) || new Date().toISOString()
-      );
     } catch (err: unknown) {
-      console.error("Error syncing pricing tiers from Stripe:", err);
-      setError(getErrorMessage(err, "Failed to sync pricing tiers from Stripe"));
+      console.error("Error loading pricing tiers:", err);
+      setError(getErrorMessage(err, "Failed to load pricing tiers"));
     } finally {
       setLoading(false);
     }
@@ -83,6 +76,7 @@ export default function PricingManagement() {
   const handleOpenEdit = (tier: PricingTier) => {
     setSelectedTier(tier);
     setLimitsDraft({ ...tier.limits });
+    setPlanDraft({ monthly: tier.stripePriceId?.monthly || "", yearly: tier.stripePriceId?.yearly || "", isActive: tier.isActive, monthlyAmount: tier.price.monthly, yearlyAmount: tier.price.yearly });
     setEditOpen(true);
   };
 
@@ -90,15 +84,23 @@ export default function PricingManagement() {
     setEditOpen(false);
     setSelectedTier(null);
     setLimitsDraft(null);
+    setPlanDraft(null);
   };
 
   const handleSave = async () => {
-    if (!selectedTier || !limitsDraft) return;
+    if (!selectedTier || !limitsDraft || !planDraft) return;
+    if ([planDraft.monthly, planDraft.yearly].some(id => id.trim() && !/^price_[A-Za-z0-9]+$/.test(id.trim()))) {
+      setError("Enter valid Stripe Price IDs beginning with price_.");
+      return;
+    }
     try {
       setSaving(true);
       setError(null);
       await PricingService.updatePricingTier(selectedTier.tierKey, {
         limits: limitsDraft,
+        stripePriceId: { monthly: planDraft.monthly.trim() || null, yearly: planDraft.yearly.trim() || null },
+        isActive: planDraft.isActive,
+        price: { monthly: planDraft.monthlyAmount, yearly: planDraft.yearlyAmount },
       });
       await fetchPricing();
       handleCloseEdit();
@@ -118,7 +120,7 @@ export default function PricingManagement() {
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
           Pricing Management
         </Typography>
-        <Tooltip title="Sync latest prices from Stripe">
+        <Tooltip title="Refresh pricing">
           <span>
             <IconButton onClick={fetchPricing} color="primary" disabled={loading}>
               <RefreshIcon />
@@ -128,18 +130,8 @@ export default function PricingManagement() {
       </Stack>
 
       <Typography variant="body2" color="text.secondary" mb={3}>
-        Pricing tiers are synced from Stripe, then displayed from backend pricing records.
+        Manage plan prices, Stripe Price IDs, limits, and active status here. Changes are saved to the database.
       </Typography>
-
-      <Alert severity="warning" sx={{ mb: 3 }}>
-        Prices can be updated only from the Stripe admin panel.
-      </Alert>
-
-      {lastSyncedAt && (
-        <Alert severity="info" sx={{ mb: 3 }}>
-          Last synced from Stripe: {new Date(lastSyncedAt).toLocaleString()}
-        </Alert>
-      )}
 
       {error && (
         <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError(null)}>
@@ -156,7 +148,7 @@ export default function PricingManagement() {
                 <TableCell>Monthly</TableCell>
                 <TableCell>Yearly</TableCell>
                 <TableCell>Limits</TableCell>
-                <TableCell>Stripe Sync</TableCell>
+                <TableCell>Stripe Price IDs</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
@@ -208,17 +200,8 @@ export default function PricingManagement() {
                     </TableCell>
                     <TableCell>
                       <Stack spacing={0.5}>
-                        <Chip
-                          label={tier.syncSource === "stripe" ? "Stripe" : tier.syncSource || "Unknown"}
-                          color={tier.syncSource === "stripe" ? "info" : "default"}
-                          size="small"
-                          variant="outlined"
-                        />
-                        {tier.syncedAt && (
-                          <Typography variant="caption" color="text.secondary">
-                            {new Date(tier.syncedAt).toLocaleString()}
-                          </Typography>
-                        )}
+                        <Typography variant="caption">Monthly: {tier.stripePriceId?.monthly || "Not configured"}</Typography>
+                        <Typography variant="caption">Yearly: {tier.stripePriceId?.yearly || "Not configured"}</Typography>
                       </Stack>
                     </TableCell>
                     <TableCell>
@@ -229,7 +212,7 @@ export default function PricingManagement() {
                       />
                     </TableCell>
                     <TableCell align="right">
-                      <Tooltip title="Edit limits">
+                      <Tooltip title="Edit plan">
                         <span>
                           <IconButton
                             size="small"
@@ -250,13 +233,22 @@ export default function PricingManagement() {
       </Paper>
 
       <Dialog open={editOpen} onClose={handleCloseEdit} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Tier Limits</DialogTitle>
+        <DialogTitle>Edit Pricing Plan</DialogTitle>
         <DialogContent>
-          {selectedTier && limitsDraft && (
+          {selectedTier && limitsDraft && planDraft && (
             <Box mt={1}>
               <Typography variant="subtitle2" gutterBottom>
                 {selectedTier.name} ({selectedTier.tierKey})
               </Typography>
+              {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+              <Stack spacing={2} mt={2}>
+                <FormControlLabel control={<Switch checked={planDraft.isActive} onChange={(_, checked) => setPlanDraft({ ...planDraft, isActive: checked })} />} label={planDraft.isActive ? "Active" : "Inactive"} />
+                <Typography variant="caption">Inactive plans are hidden from pricing and cannot be selected for new checkouts. Existing subscriptions continue.</Typography>
+                <TextField label="Monthly Stripe Price ID" value={planDraft.monthly} onChange={e => setPlanDraft({ ...planDraft, monthly: e.target.value })} fullWidth placeholder="price_..." />
+                <TextField label="Yearly Stripe Price ID" value={planDraft.yearly} onChange={e => setPlanDraft({ ...planDraft, yearly: e.target.value })} fullWidth placeholder="price_..." />
+                <TextField label="Monthly display price" type="number" inputProps={{ min: 0, step: 0.01 }} value={planDraft.monthlyAmount} onChange={e => setPlanDraft({ ...planDraft, monthlyAmount: Number(e.target.value) })} />
+                <TextField label="Yearly display price" type="number" inputProps={{ min: 0, step: 0.01 }} value={planDraft.yearlyAmount} onChange={e => setPlanDraft({ ...planDraft, yearlyAmount: Number(e.target.value) })} />
+              </Stack>
               <Grid container spacing={2} mt={1}>
                 <Grid item xs={12} sm={4}>
                   <TextField
@@ -303,7 +295,7 @@ export default function PricingManagement() {
               </Grid>
               <Divider sx={{ mt: 2, mb: 1 }} />
               <Typography variant="caption" color="text.secondary">
-                Prices can be updated only from the Stripe admin panel. This dialog only changes plan limits.
+                Checkout charges the amount associated with the Stripe Price ID. Keep display prices consistent with those Stripe prices.
               </Typography>
             </Box>
           )}

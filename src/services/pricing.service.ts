@@ -73,19 +73,9 @@ export interface UpdatePricingTierResponse {
   data: PricingTier;
 }
 
-export interface GetPricingTiersOptions {
-  syncFromStripe?: boolean;
-}
-
 export const PricingService = {
-  getPricingTiers: (
-    options: GetPricingTiersOptions = {}
-  ): Promise<GetPricingTiersResponse> => {
-    return ApiService.get(
-      "/v1/system-admin/pricing",
-      options.syncFromStripe ? { sync: "stripe" } : undefined
-    );
-  },
+  getPricingTiers: (): Promise<GetPricingTiersResponse> =>
+    ApiService.get("/v1/system-admin/pricing"),
 
   updatePricingTier: (
     tierKey: string,
