@@ -1,3 +1,4 @@
+import TrialSettings from "./TrialSettings";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Box,
@@ -138,6 +139,8 @@ export default function PricingManagement() {
           {error}
         </Alert>
       )}
+
+      <TrialSettings />
 
       <Paper>
         <TableContainer>
